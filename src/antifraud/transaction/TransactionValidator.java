@@ -1,4 +1,4 @@
-package antifraud;
+package antifraud.transaction;
 
 import org.springframework.stereotype.Component;
 

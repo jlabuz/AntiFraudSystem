@@ -1,4 +1,4 @@
-package antifraud;
+package antifraud.transaction;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

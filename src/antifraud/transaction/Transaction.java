@@ -1,4 +1,4 @@
-package antifraud;
+package antifraud.transaction;
 
 import javax.validation.constraints.Min;
 
