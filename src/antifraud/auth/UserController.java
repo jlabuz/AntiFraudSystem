@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth/")
 public class UserController {
@@ -21,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping("user")
-    public ResponseEntity<RegisterResponse> registerUser(@RequestBody RegisterRequest request) {
+    public ResponseEntity<RegisterResponse> registerUser(@RequestBody @Valid RegisterRequest request) {
         try {
             User user = userService.createUser(request.getName(), request.getUsername(), request.getPassword());
             RegisterResponse response = new RegisterResponse(user.getId(), user.getName(), user.getUsername());

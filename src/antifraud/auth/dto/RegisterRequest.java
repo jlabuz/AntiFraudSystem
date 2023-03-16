@@ -12,6 +12,12 @@ public class RegisterRequest {
     @NotEmpty
     private String password;
 
+    public RegisterRequest(String name, String username, String password) {
+        this.name = name;
+        this.username = username;
+        this.password = password;
+    }
+
     public RegisterRequest() {
     }
 
