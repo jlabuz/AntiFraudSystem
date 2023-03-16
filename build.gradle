@@ -13,6 +13,7 @@ repositories {
 }
 
 sourceSets.main.resources.srcDirs = ["src/resources"]
+sourceSets.test.resources.srcDirs = ["test/resources"]
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
