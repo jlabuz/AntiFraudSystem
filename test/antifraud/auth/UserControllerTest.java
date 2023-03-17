@@ -1,7 +1,7 @@
 package antifraud.auth;
 
 import antifraud.auth.dto.RegisterRequest;
-import antifraud.auth.dto.RegisterResponse;
+import antifraud.auth.dto.UserDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,9 +44,9 @@ class UserControllerTest {
 
         response
                 .expectStatus().isCreated()
-                .expectBody(RegisterResponse.class)
+                .expectBody(UserDTO.class)
                 .consumeWith(body -> {
-                    RegisterResponse result = body.getResponseBody();
+                    UserDTO result = body.getResponseBody();
                     assertNotNull(result);
                     assertEquals(username, result.getUsername());
                     assertEquals(name, result.getName());

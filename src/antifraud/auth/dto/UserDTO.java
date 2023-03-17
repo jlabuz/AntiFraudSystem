@@ -1,9 +1,12 @@
 package antifraud.auth.dto;
 
+import antifraud.auth.User;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
-public class RegisterResponse {
+public class UserDTO {
     @NotNull
     private Long id;
 
@@ -13,10 +16,10 @@ public class RegisterResponse {
     @NotEmpty
     private String username;
 
-    public RegisterResponse() {
+    public UserDTO() {
     }
 
-    public RegisterResponse(Long id, String name, String username) {
+    public UserDTO(Long id, String name, String username) {
         this.id = id;
         this.name = name;
         this.username = username;
@@ -44,5 +47,22 @@ public class RegisterResponse {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public static UserDTO mapUserToUserDTO(User user) {
+        return new UserDTO(user.getId(), user.getName(), user.getUsername());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDTO userDTO = (UserDTO) o;
+        return Objects.equals(id, userDTO.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

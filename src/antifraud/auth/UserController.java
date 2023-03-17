@@ -1,7 +1,7 @@
 package antifraud.auth;
 
 import antifraud.auth.dto.RegisterRequest;
-import antifraud.auth.dto.RegisterResponse;
+import antifraud.auth.dto.UserDTO;
 import antifraud.auth.exceptions.UsernameAlreadyUsedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +23,10 @@ public class UserController {
     }
 
     @PostMapping("user")
-    public ResponseEntity<RegisterResponse> registerUser(@RequestBody @Valid RegisterRequest request) {
+    public ResponseEntity<UserDTO> registerUser(@RequestBody @Valid RegisterRequest request) {
         try {
             User user = userService.createUser(request.getName(), request.getUsername(), request.getPassword());
-            RegisterResponse response = new RegisterResponse(user.getId(), user.getName(), user.getUsername());
+            UserDTO response = new UserDTO(user.getId(), user.getName(), user.getUsername());
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (UsernameAlreadyUsedException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
