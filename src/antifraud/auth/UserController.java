@@ -5,12 +5,11 @@ import antifraud.auth.dto.UserDTO;
 import antifraud.auth.exceptions.UsernameAlreadyUsedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth/")
@@ -31,5 +30,17 @@ public class UserController {
         } catch (UsernameAlreadyUsedException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
+    }
+
+    @GetMapping("list")
+    public List<UserDTO> listUsers() {
+        List<User> users = userService.listUsers();
+        return mapUsersToUserDTOs(users);
+    }
+
+    private static List<UserDTO> mapUsersToUserDTOs(List<User> users) {
+        return users.stream()
+                .map(UserDTO::mapUserToUserDTO)
+                .collect(Collectors.toList());
     }
 }

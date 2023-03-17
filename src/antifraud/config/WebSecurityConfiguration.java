@@ -24,8 +24,9 @@ public class WebSecurityConfiguration {
                 .and()
                 .authorizeRequests() // manage access
                 .antMatchers("/h2-console/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/auth/user").permitAll()
                 .antMatchers("/actuator/shutdown").permitAll() // needs to run test
+                .antMatchers(HttpMethod.POST, "/api/auth/user").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/auth/list").authenticated()
                 .anyRequest().denyAll()
                 .and()
                 .sessionManagement()

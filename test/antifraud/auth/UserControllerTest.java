@@ -12,9 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -22,12 +26,16 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserControllerTest {
     private static final String USER_ENDPOINT = "/api/auth/user";
+    private static final String USER_LIST_ENDPOINT = "/api/auth/list";
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private WebTestClient webClient;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @AfterEach
     void tearDown() {
@@ -99,5 +107,45 @@ class UserControllerTest {
                 .uri(USER_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request);
+    }
+
+    @Test
+    void shouldReturnUserListForAuthorizedUser() {
+        String username = "first";
+        String password = "password";
+        var users = List.of(
+                new User("First", username, passwordEncoder.encode(password)),
+                new User("Second", "second", "password"),
+                new User("Third", "third", "password"));
+        Iterable<User> registered = userRepository.saveAll(users);
+        var responses = StreamSupport.stream(registered.spliterator(), false).
+                map(u -> new UserDTO(u.getId(), u.getName(), u.getUsername()))
+                .collect(Collectors.toList());
+
+        var response = this.webClient
+                .get()
+                .uri(USER_LIST_ENDPOINT)
+                .headers(headers -> headers.setBasicAuth(username, password))
+                .exchange();
+
+        response
+                .expectStatus().isOk()
+                .expectBodyList(UserDTO.class)
+                .consumeWith(body -> {
+                    List<UserDTO> result = body.getResponseBody();
+                    assertNotNull(result);
+                    assertIterableEquals(result, responses);
+                });
+
+    }
+
+    @Test
+    void shouldReturnUnauthorizedForAnonymous() {
+        var response = this.webClient
+                .get()
+                .uri(USER_LIST_ENDPOINT)
+                .exchange();
+
+        response.expectStatus().isUnauthorized();
     }
 }
