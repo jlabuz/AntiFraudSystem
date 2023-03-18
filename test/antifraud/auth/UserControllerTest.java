@@ -1,5 +1,6 @@
 package antifraud.auth;
 
+import antifraud.auth.dto.DeletionResponse;
 import antifraud.auth.dto.RegisterRequest;
 import antifraud.auth.dto.UserDTO;
 import org.junit.jupiter.api.AfterEach;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class UserControllerTest {
     private static final String USER_ENDPOINT = "/api/auth/user";
     private static final String USER_LIST_ENDPOINT = "/api/auth/list";
+    private static final String DELETE_USER_ENDPOINT = "/api/auth/user";
 
     @Autowired
     private UserRepository userRepository;
@@ -140,12 +142,70 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldReturnUnauthorizedForAnonymous() {
+    void shouldReturnUnauthorizedForAnonymousListingUsers() {
         var response = this.webClient
                 .get()
                 .uri(USER_LIST_ENDPOINT)
                 .exchange();
 
         response.expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void shouldReturnUnauthorizedForAnonymousDeletingUser() {
+        var response = this.webClient
+                .delete()
+                .uri(DELETE_USER_ENDPOINT + "/nonexistent")
+                .exchange();
+
+        response.expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void shouldReturnNotFountForRemovingNonexistentUser() {
+        String username = "username";
+        String password = "password";
+
+        var user = new User("User", "username", passwordEncoder.encode(password));
+        userRepository.save(user);
+
+        var response = this.webClient
+                .delete()
+                .uri(DELETE_USER_ENDPOINT + "/nonexistent")
+                .headers(headers -> headers.setBasicAuth(username, password))
+                .exchange();
+
+        response.expectStatus().isNotFound();
+    }
+
+    @Test
+    void shouldRemoveExistingUserAndReturnStatus() {
+        String username = "username";
+        String password = "password";
+
+        var user = new User("User", "username", passwordEncoder.encode(password));
+        userRepository.save(user);
+
+        var usernameToDelete = "todelete";
+        var userToDelete = new User("To Delete", usernameToDelete, "password");
+        userRepository.save(userToDelete);
+
+        var expectedResponse = new DeletionResponse(usernameToDelete, "Deleted successfully!");
+
+        var response = this.webClient
+                .delete()
+                .uri(DELETE_USER_ENDPOINT + "/" + usernameToDelete)
+                .headers(headers -> headers.setBasicAuth(username, password))
+                .exchange();
+
+        response
+                .expectStatus().isOk()
+                .expectBody(DeletionResponse.class)
+                .consumeWith(body -> {
+                    var result = body.getResponseBody();
+                    assertNotNull(result);
+                    assertEquals(expectedResponse, result);
+                });
+        assertTrue(userRepository.findByUsername(usernameToDelete).isEmpty());
     }
 }

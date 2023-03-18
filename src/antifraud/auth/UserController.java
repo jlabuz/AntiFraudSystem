@@ -1,10 +1,12 @@
 package antifraud.auth;
 
+import antifraud.auth.dto.DeletionResponse;
 import antifraud.auth.dto.RegisterRequest;
 import antifraud.auth.dto.UserDTO;
 import antifraud.auth.exceptions.UsernameAlreadyUsedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -42,5 +44,15 @@ public class UserController {
         return users.stream()
                 .map(UserDTO::mapUserToUserDTO)
                 .collect(Collectors.toList());
+    }
+
+    @DeleteMapping("user/{username}")
+    public ResponseEntity<DeletionResponse> deleteUser(@PathVariable String username) {
+        try {
+            userService.deleteUser(username);
+            return ResponseEntity.ok(new DeletionResponse(username, "Deleted successfully!"));
+        } catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
