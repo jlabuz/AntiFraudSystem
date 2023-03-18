@@ -28,6 +28,7 @@ public class WebSecurityConfiguration {
                 .antMatchers(HttpMethod.POST, "/api/auth/user").permitAll()
                 .antMatchers(HttpMethod.DELETE, "/api/auth/user/**").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/auth/list").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/antifraud/transaction").authenticated()
                 .anyRequest().denyAll()
                 .and()
                 .sessionManagement()
