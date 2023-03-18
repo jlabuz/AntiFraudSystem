@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
+    @Transactional
     public User createUser(String name, String username, String password) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new UsernameAlreadyUsedException(String.format("Username %s is already used", username));
@@ -48,6 +50,7 @@ public class UserService implements UserDetailsService {
         return (List<User>) userRepository.findAll();
     }
 
+    @Transactional
     public void deleteUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username n  ot found"));
