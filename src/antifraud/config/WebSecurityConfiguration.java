@@ -1,5 +1,6 @@
 package antifraud.config;
 
+import antifraud.auth.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -26,9 +27,10 @@ public class WebSecurityConfiguration {
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/actuator/shutdown").permitAll() // needs to run test
                 .antMatchers(HttpMethod.POST, "/api/auth/user").permitAll()
-                .antMatchers(HttpMethod.DELETE, "/api/auth/user/**").authenticated()
-                .antMatchers(HttpMethod.GET, "/api/auth/list").authenticated()
-                .antMatchers(HttpMethod.POST, "/api/antifraud/transaction").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/auth/user/**").hasRole(Role.ADMINISTRATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/auth/access", "/api/auth/role").hasRole(Role.ADMINISTRATOR.name())
+                .antMatchers(HttpMethod.GET, "/api/auth/list").hasAnyRole(Role.ADMINISTRATOR.name(), Role.SUPPORT.name())
+                .antMatchers(HttpMethod.POST, "/api/antifraud/transaction").hasRole(Role.MERCHANT.name())
                 .anyRequest().denyAll()
                 .and()
                 .sessionManagement()

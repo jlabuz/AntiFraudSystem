@@ -33,7 +33,7 @@ public class UserService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
-                .roles("USER")
+                .roles(user.getRole().name())
                 .build();
     }
 
@@ -43,7 +43,8 @@ public class UserService implements UserDetailsService {
             throw new UsernameAlreadyUsedException(String.format("Username %s is already used", username));
         }
 
-        return userRepository.save(new User(name, username, passwordEncoder.encode(password)));
+        Role role = userRepository.count() == 0 ? Role.ADMINISTRATOR : Role.MERCHANT;
+        return userRepository.save(new User(name, username, passwordEncoder.encode(password), role));
     }
 
     public List<User> listUsers() {

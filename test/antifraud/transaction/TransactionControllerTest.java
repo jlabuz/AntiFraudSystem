@@ -1,5 +1,6 @@
 package antifraud.transaction;
 
+import antifraud.auth.Role;
 import antifraud.auth.User;
 import antifraud.auth.UserRepository;
 import org.junit.jupiter.api.*;
@@ -15,17 +16,22 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class TransactionControllerTest {
-    private static final String UNAUTHORIZED = "unauthorized";
     private static final String ANTIFRAUD_TRANSACTION_ENDPOINT = "/api/antifraud/transaction";
-    private static final String USERNAME = "username";
+    private static final String MERCHANT_USERNAME = "username";
+    private static final String ADMIN_USERNAME = "admin";
+    private static final String SUPPORT_USERNAME = "support";
     private static final String PASSWORD = "password";
+
+    private static final Transaction DEFAULT_TRANSACTION = new Transaction(50);
 
     @Autowired
     private WebTestClient webClient;
 
     @BeforeAll
     static void registerUserForAuthorization(@Autowired UserRepository userRepository, @Autowired PasswordEncoder passwordEncoder) {
-        userRepository.save(new User("Test User", USERNAME, passwordEncoder.encode(PASSWORD)));
+        userRepository.save(new User("Merchant", MERCHANT_USERNAME, passwordEncoder.encode(PASSWORD), Role.MERCHANT));
+        userRepository.save(new User("Admin", ADMIN_USERNAME, passwordEncoder.encode(PASSWORD), Role.ADMINISTRATOR));
+        userRepository.save(new User("Support", SUPPORT_USERNAME, passwordEncoder.encode(PASSWORD), Role.SUPPORT));
     }
 
     @AfterAll
@@ -38,9 +44,9 @@ class TransactionControllerTest {
     void shouldAcceptLowAmountAndReturnAllowedStatus(int amount) {
         Transaction transaction = new Transaction(amount);
         ValidationResult result = new ValidationResult(TransactionStatus.ALLOWED);
-        WebTestClient.RequestHeadersSpec<?> request = buildTransactionRequest(transaction);
+        var request = buildTransactionRequestAsMerchant(transaction);
 
-        WebTestClient.ResponseSpec response = request.exchange();
+        var response = request.exchange();
 
         response
                 .expectStatus().isOk()
@@ -52,9 +58,9 @@ class TransactionControllerTest {
     void shouldReturnManualProcessingStatusForIntermediateAmount(int amount) {
         Transaction transaction = new Transaction(amount);
         ValidationResult expectedResult = new ValidationResult(TransactionStatus.MANUAL_PROCESSING);
-        WebTestClient.RequestHeadersSpec<?> request = buildTransactionRequest(transaction);
+        var request = buildTransactionRequestAsMerchant(transaction);
 
-        WebTestClient.ResponseSpec response = request.exchange();
+        var response = request.exchange();
 
         response
                 .expectStatus().isOk()
@@ -66,9 +72,9 @@ class TransactionControllerTest {
     void shouldReturnProhibitedStatusForTooLargeAmount(int amount) {
         Transaction transaction = new Transaction(amount);
         ValidationResult expectedResult = new ValidationResult(TransactionStatus.PROHIBITED);
-        WebTestClient.RequestHeadersSpec<?> request = buildTransactionRequest(transaction);
+        var request = buildTransactionRequestAsMerchant(transaction);
 
-        WebTestClient.ResponseSpec response = request.exchange();
+        var response = request.exchange();
 
         response
                 .expectStatus().isOk()
@@ -78,36 +84,46 @@ class TransactionControllerTest {
     @ParameterizedTest
     @ValueSource(ints = {-4, 0})
     void shouldReturnBadRequestForNegativeOrZeroAmount(int amount) {
-        Transaction transaction = new Transaction(amount);
-        WebTestClient.RequestHeadersSpec<?> request = buildTransactionRequest(transaction);
-
-        WebTestClient.ResponseSpec response = request.exchange();
-
-        response
-                .expectStatus().isBadRequest();
+        var request = buildTransactionRequestAsMerchant(new Transaction(amount));
+        var response = request.exchange();
+        response.expectStatus().isBadRequest();
     }
 
     @Test
-    @Tag(UNAUTHORIZED)
     void shouldReturnUnauthorizedForAnonymousUser() {
-        Transaction transaction = new Transaction(50);
-        WebTestClient.RequestHeadersSpec<?> request = this.webClient
-                .post()
-                .uri(ANTIFRAUD_TRANSACTION_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(transaction);
-
-        WebTestClient.ResponseSpec response = request.exchange();
-
-        response
-                .expectStatus().isUnauthorized();
+        var request = buildAnonymousTransactionRequest(DEFAULT_TRANSACTION);
+        var response = request.exchange();
+        response.expectStatus().isUnauthorized();
     }
 
-    private WebTestClient.RequestHeadersSpec<?> buildTransactionRequest(Transaction transaction) {
+    @Test
+    void shouldReturnForbiddenForAdministrator() {
+        var request = buildDefaultTransactionRequestAsUser(ADMIN_USERNAME);
+        var response = request.exchange();
+        response.expectStatus().isForbidden();
+    }
+
+    @Test
+    void shouldReturnForbiddenForSupport() {
+        var request = buildDefaultTransactionRequestAsUser(SUPPORT_USERNAME);
+        var response = request.exchange();
+        response.expectStatus().isForbidden();
+    }
+
+    private WebTestClient.RequestHeadersSpec<?> buildTransactionRequestAsMerchant(Transaction transaction) {
+        return buildAnonymousTransactionRequest(transaction)
+                .headers(httpHeaders -> httpHeaders.setBasicAuth(MERCHANT_USERNAME, PASSWORD));
+    }
+
+    private WebTestClient.RequestHeadersSpec<?> buildDefaultTransactionRequestAsUser(String username) {
+        return buildAnonymousTransactionRequest(DEFAULT_TRANSACTION)
+                .headers(httpHeaders -> httpHeaders.setBasicAuth(username, PASSWORD));
+    }
+
+    private WebTestClient.RequestHeadersSpec<?> buildAnonymousTransactionRequest(Transaction transaction) {
         return this.webClient
                 .post()
                 .uri(ANTIFRAUD_TRANSACTION_ENDPOINT)
-                .headers(httpHeaders -> httpHeaders.setBasicAuth(USERNAME, PASSWORD))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(transaction);
     }
