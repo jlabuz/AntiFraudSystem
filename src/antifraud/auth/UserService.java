@@ -1,5 +1,6 @@
 package antifraud.auth;
 
+import antifraud.auth.dto.Operation;
 import antifraud.auth.exceptions.RoleAlreadyAssignedException;
 import antifraud.auth.exceptions.UsernameAlreadyUsedException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static antifraud.auth.dto.Operation.LOCK;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -78,6 +81,21 @@ public class UserService implements UserDetailsService {
         }
         if (role.equals(user.getRole())) {
             throw new RoleAlreadyAssignedException();
+        }
+    }
+
+    public void changeUserLock(String username, Operation operation) {
+        boolean lock = operation == LOCK;
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+        validateLockChange(lock, user);
+        user.setLocked(lock);
+        userRepository.save(user);
+    }
+
+    private static void validateLockChange(boolean lock, User user) {
+        if (user.getRole() == Role.ADMINISTRATOR && lock) {
+            throw new IllegalArgumentException();
         }
     }
 }

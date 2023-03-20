@@ -1,9 +1,6 @@
 package antifraud.auth;
 
-import antifraud.auth.dto.DeletionResponse;
-import antifraud.auth.dto.RegisterRequest;
-import antifraud.auth.dto.RoleChangeRequest;
-import antifraud.auth.dto.UserDTO;
+import antifraud.auth.dto.*;
 import antifraud.auth.exceptions.RoleAlreadyAssignedException;
 import antifraud.auth.exceptions.UsernameAlreadyUsedException;
 import org.springframework.http.HttpStatus;
@@ -12,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +67,19 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (RoleAlreadyAssignedException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+    }
+
+    @PutMapping("access")
+    public ResponseEntity<?> changeUserLock(@RequestBody @Valid UserLockRequest request) {
+        try {
+            userService.changeUserLock(request.getUsername(), request.getOperation());
+            return ResponseEntity.ok(Collections.singletonMap("status",
+                    String.format("User %s %sed!", request.getUsername(), request.getOperation().name().toLowerCase())));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }
