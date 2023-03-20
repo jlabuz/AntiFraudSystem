@@ -25,7 +25,7 @@ public class UserListingTest extends UserControllerTest {
                 new User("Third", "third", "password", Role.MERCHANT));
         Iterable<User> registered = userRepository.saveAll(users);
         var responses = StreamSupport.stream(registered.spliterator(), false).
-                map(u -> new UserDTO(u.getId(), u.getName(), u.getUsername()))
+                map(UserDTO::mapUserToUserDTO)
                 .collect(Collectors.toList());
 
         var response = buildListingUsersRequest(username, password)

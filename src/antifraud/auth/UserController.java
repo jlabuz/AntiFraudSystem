@@ -27,7 +27,7 @@ public class UserController {
     public ResponseEntity<UserDTO> registerUser(@RequestBody @Valid RegisterRequest request) {
         try {
             User user = userService.createUser(request.getName(), request.getUsername(), request.getPassword());
-            UserDTO response = new UserDTO(user.getId(), user.getName(), user.getUsername());
+            UserDTO response = UserDTO.mapUserToUserDTO(user);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (UsernameAlreadyUsedException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);

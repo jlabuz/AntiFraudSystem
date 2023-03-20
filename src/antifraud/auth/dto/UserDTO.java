@@ -1,5 +1,6 @@
 package antifraud.auth.dto;
 
+import antifraud.auth.Role;
 import antifraud.auth.User;
 
 import javax.validation.constraints.NotEmpty;
@@ -16,13 +17,17 @@ public class UserDTO {
     @NotEmpty
     private String username;
 
+    @NotEmpty
+    private String role;
+
     public UserDTO() {
     }
 
-    public UserDTO(Long id, String name, String username) {
+    public UserDTO(Long id, String name, String username, String role) {
         this.id = id;
         this.name = name;
         this.username = username;
+        this.role = role;
     }
 
     public Long getId() {
@@ -50,7 +55,15 @@ public class UserDTO {
     }
 
     public static UserDTO mapUserToUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getName(), user.getUsername());
+        return new UserDTO(user.getId(), user.getName(), user.getUsername(), user.getRole().name());
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     @Override
