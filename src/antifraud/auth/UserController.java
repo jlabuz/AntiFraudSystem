@@ -2,7 +2,9 @@ package antifraud.auth;
 
 import antifraud.auth.dto.DeletionResponse;
 import antifraud.auth.dto.RegisterRequest;
+import antifraud.auth.dto.RoleChangeRequest;
 import antifraud.auth.dto.UserDTO;
+import antifraud.auth.exceptions.RoleAlreadyAssignedException;
 import antifraud.auth.exceptions.UsernameAlreadyUsedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +55,20 @@ public class UserController {
             return ResponseEntity.ok(new DeletionResponse(username, "Deleted successfully!"));
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("role")
+    public ResponseEntity<UserDTO> changeUserRole(@RequestBody @Valid RoleChangeRequest request) {
+        try {
+            User user = userService.changeUserRole(request.getUsername(), request.getRole());
+            return ResponseEntity.ok(UserDTO.mapUserToUserDTO(user));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (RoleAlreadyAssignedException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 }
