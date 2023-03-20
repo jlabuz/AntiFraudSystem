@@ -1,6 +1,5 @@
 package antifraud.auth.dto;
 
-import antifraud.auth.Role;
 import antifraud.auth.User;
 
 import javax.validation.constraints.NotEmpty;
