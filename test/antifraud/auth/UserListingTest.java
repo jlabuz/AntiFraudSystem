@@ -1,5 +1,6 @@
 package antifraud.auth;
 
+import antifraud.ControllerTest;
 import antifraud.auth.dto.UserDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -11,7 +12,7 @@ import java.util.stream.StreamSupport;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class UserListingTest extends UserControllerTest {
+public class UserListingTest extends ControllerTest {
     private static final String LIST_USERS_ENDPOINT = "/api/auth/list";
 
     @Test

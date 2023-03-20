@@ -1,5 +1,6 @@
 package antifraud.auth;
 
+import antifraud.ControllerTest;
 import antifraud.auth.dto.RegisterRequest;
 import antifraud.auth.dto.UserDTO;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class UserRegistrationTest extends UserControllerTest {
+public class UserRegistrationTest extends ControllerTest {
     private static final String REGISTER_USER_ENDPOINT = "/api/auth/user";
 
     @Test

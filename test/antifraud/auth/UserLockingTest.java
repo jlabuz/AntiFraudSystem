@@ -1,5 +1,6 @@
 package antifraud.auth;
 
+import antifraud.ControllerTest;
 import antifraud.auth.dto.Operation;
 import antifraud.auth.dto.UserLockRequest;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserLockingTest extends UserControllerTest {
+public class UserLockingTest extends ControllerTest {
     private static final String USER_LOCK_ENDPOINT = "/api/auth/access";
     private static final UserLockRequest DEFAULT_REQUEST = new UserLockRequest("someuser", Operation.LOCK);
 

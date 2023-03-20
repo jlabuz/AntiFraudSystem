@@ -1,5 +1,6 @@
 package antifraud.auth;
 
+import antifraud.ControllerTest;
 import antifraud.auth.dto.RoleChangeRequest;
 import antifraud.auth.dto.UserDTO;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserRoleChangeTest extends UserControllerTest {
+public class UserRoleChangeTest extends ControllerTest {
     private static final String ROLE_CHANGE_ENDPOINT = "/api/auth/role";
     private static final RoleChangeRequest DEFAULT_REQUEST = new RoleChangeRequest("someuser", "MERCHANT");
 

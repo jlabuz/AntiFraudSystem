@@ -1,5 +1,8 @@
-package antifraud.auth;
+package antifraud;
 
+import antifraud.auth.Role;
+import antifraud.auth.User;
+import antifraud.auth.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserControllerTest {
+public class ControllerTest {
     protected static final String ADMIN_USERNAME = "admin";
     protected static final String MERCHANT_USERNAME = "merchant";
     protected static final String SUPPORT_USERNAME = "support";

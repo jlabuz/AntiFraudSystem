@@ -1,5 +1,6 @@
 package antifraud.auth;
 
+import antifraud.ControllerTest;
 import antifraud.auth.dto.DeletionResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,7 +10,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class UserDeletingTest extends UserControllerTest {
+public class UserDeletingTest extends ControllerTest {
     private static final String DELETE_USER_ENDPOINT = "/api/auth/user";
 
     @Test
