@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,6 +36,39 @@ public class UserRegistrationTest extends UserControllerTest {
                     assertEquals(requestDTO.getName(), result.getName());
                 });
         assertTrue(userRepository.findByUsername(requestDTO.getUsername()).isPresent());
+    }
+
+    @Test
+    void shouldRegisterFirstUserAsUnlockedAdministrator() {
+        userRepository.deleteAll();
+        String username = "johndoe";
+        var request = buildRegistrationRequest(new RegisterRequest("John Doe", username, "secretpassword"));
+
+        var response = request.exchange();
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+
+        response.expectStatus().isCreated();
+        assertTrue(optionalUser.isPresent());
+
+        User user = optionalUser.get();
+        assertEquals(Role.ADMINISTRATOR, user.getRole());
+        assertFalse(user.isLocked());
+    }
+
+    @Test
+    void shouldRegisterTheFollowingUserAsLockedMerchant() {
+        String username = "johndoe";
+        var request = buildRegistrationRequest(new RegisterRequest("John Doe", username, "secretpassword"));
+
+        var response = request.exchange();
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+
+        response.expectStatus().isCreated();
+        assertTrue(optionalUser.isPresent());
+
+        User user = optionalUser.get();
+        assertEquals(Role.MERCHANT, user.getRole());
+        assertTrue(user.isLocked());
     }
 
     @ParameterizedTest

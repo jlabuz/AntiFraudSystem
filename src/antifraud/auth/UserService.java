@@ -44,8 +44,10 @@ public class UserService implements UserDetailsService {
             throw new UsernameAlreadyUsedException(String.format("Username %s is already used", username));
         }
 
-        Role role = userRepository.count() == 0 ? Role.ADMINISTRATOR : Role.MERCHANT;
-        return userRepository.save(new User(name, username, passwordEncoder.encode(password), role));
+        boolean firstUser = userRepository.count() == 0;
+        Role role = firstUser ? Role.ADMINISTRATOR : Role.MERCHANT;
+        boolean locked = !firstUser;
+        return userRepository.save(new User(name, username, passwordEncoder.encode(password), role, locked));
     }
 
     public List<User> listUsers() {

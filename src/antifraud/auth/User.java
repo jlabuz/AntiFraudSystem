@@ -11,15 +11,21 @@ public class User {
     private String username;
     private String password;
     private Role role;
+    private boolean locked;
 
     public User() {
     }
 
-    public User(String name, String username, String password, Role role) {
+    public User(String name, String username, String password, Role role, boolean locked) {
         this.name = name;
         this.username = username;
         this.password = password;
         this.role = role;
+        this.locked = locked;
+    }
+
+    public User(String name, String username, String password, Role role) {
+        this(name, username, password, role, false);
     }
 
     public long getId() {
@@ -62,7 +68,13 @@ public class User {
         this.role = role;
     }
 
+    public boolean isLocked() {
+        return locked;
+    }
 
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
 
     @Override
     public String toString() {
@@ -72,6 +84,7 @@ public class User {
                ", username='" + username + '\'' +
                ", password='" + password + '\'' +
                ", role='" + role + '\'' +
+               ", locked='" + locked + '\'' +
                '}';
     }
 }
