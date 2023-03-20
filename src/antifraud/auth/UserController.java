@@ -71,11 +71,11 @@ public class UserController {
     }
 
     @PutMapping("access")
-    public ResponseEntity<?> changeUserLock(@RequestBody @Valid UserLockRequest request) {
+    public ResponseEntity<LockResponse> changeUserLock(@RequestBody @Valid UserLockRequest request) {
         try {
-            userService.changeUserLock(request.getUsername(), request.getOperation());
-            return ResponseEntity.ok(Collections.singletonMap("status",
-                    String.format("User %s %sed!", request.getUsername(), request.getOperation().name().toLowerCase())));
+            boolean lock = request.getOperation() == Operation.LOCK;
+            userService.changeUserLock(request.getUsername(), lock);
+            return ResponseEntity.ok(new LockResponse(request.getUsername(), lock));
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (UsernameNotFoundException e) {

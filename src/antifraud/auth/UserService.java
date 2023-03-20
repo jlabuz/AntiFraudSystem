@@ -1,6 +1,5 @@
 package antifraud.auth;
 
-import antifraud.auth.dto.Operation;
 import antifraud.auth.exceptions.RoleAlreadyAssignedException;
 import antifraud.auth.exceptions.UsernameAlreadyUsedException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,11 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static antifraud.auth.dto.Operation.LOCK;
-
 @Service
 public class UserService implements UserDetailsService {
-
+    private static final String USERNAME_NOT_FOUND = "Username not found";
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -60,7 +57,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void deleteUser(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(USERNAME_NOT_FOUND));
 
         userRepository.delete(user);
     }
@@ -69,7 +66,7 @@ public class UserService implements UserDetailsService {
     public User changeUserRole(String username, String roleName) {
         Role role = Role.valueOf(roleName);
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(USERNAME_NOT_FOUND));
         validateRoleChange(role, user);
         user.setRole(role);
         return userRepository.save(user);
@@ -84,10 +81,9 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void changeUserLock(String username, Operation operation) {
-        boolean lock = operation == LOCK;
+    public void changeUserLock(String username, boolean lock) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(USERNAME_NOT_FOUND));
         validateLockChange(lock, user);
         user.setLocked(lock);
         userRepository.save(user);
