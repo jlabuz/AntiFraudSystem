@@ -6,3 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
   role varchar(50) NOT NULL,
   locked bool NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS ip (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip varchar(15)
+)
