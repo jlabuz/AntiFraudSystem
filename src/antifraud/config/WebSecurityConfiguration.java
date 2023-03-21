@@ -33,7 +33,7 @@ public class WebSecurityConfiguration {
                 .antMatchers(HttpMethod.POST, "/api/antifraud/transaction").hasRole(Role.MERCHANT.name())
                 .antMatchers(HttpMethod.POST, "/api/antifraud/suspicious-ip", "api/antifraud/stolencard").hasRole(Role.SUPPORT.name())
                 .antMatchers(HttpMethod.GET, "/api/antifraud/suspicious-ip", "api/antifraud/stolencard").hasRole(Role.SUPPORT.name())
-                .antMatchers(HttpMethod.DELETE, "/api/antifraud/suspicious-ip", "api/antifraud/stolencard").hasRole(Role.SUPPORT.name())
+                .antMatchers(HttpMethod.DELETE, "/api/antifraud/suspicious-ip/**", "api/antifraud/stolencard/**").hasRole(Role.SUPPORT.name())
                 .anyRequest().denyAll()
                 .and()
                 .sessionManagement()

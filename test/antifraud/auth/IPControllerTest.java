@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -75,6 +76,7 @@ public class IPControllerTest {
         var response = webClient.post()
                 .uri(ANTIFRAUD_TRANSACTION_ENDPOINT)
                 .headers(http -> http.setBasicAuth(SUPPORT_USERNAME, PASSWORD))
+                .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"ip\": \"" + ip + "\"}")
                 .exchange();
 
@@ -93,6 +95,7 @@ public class IPControllerTest {
         var response = webClient.post()
                 .uri(ANTIFRAUD_TRANSACTION_ENDPOINT)
                 .headers(http -> http.setBasicAuth(SUPPORT_USERNAME, PASSWORD))
+                .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"ip\": \"" + ip + "\"}")
                 .exchange();
 
@@ -107,11 +110,11 @@ public class IPControllerTest {
         var response = webClient.post()
                 .uri(ANTIFRAUD_TRANSACTION_ENDPOINT)
                 .headers(http -> http.setBasicAuth(SUPPORT_USERNAME, PASSWORD))
+                .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"ip\": \"" + ip + "\"}")
                 .exchange();
 
         response.expectStatus().isEqualTo(HttpStatus.CONFLICT);
-        assertFalse(ipRepository.findByIp(ip).isPresent());
     }
 
     @Test
